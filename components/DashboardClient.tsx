@@ -7,6 +7,8 @@ import { Memory } from '@/types'
 import UploadModal from '@/components/UploadModal'
 import BirthdayBanner from '@/components/BirthdayBanner'
 import PhotobookExport from '@/components/PhotobookExport'
+import MemoryDetail from '@/components/MemoryDetail'
+import OnThisDay from '@/components/OnThisDay'
 import { subscribePush } from '@/lib/subscribePush'
 import { ALLOWED_EMAILS } from '@/lib/access'
 import { FRIENDS_BIRTHDAYS, getDaysUntilBirthday } from '@/lib/birthdays'
@@ -42,6 +44,7 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
   const [showMap, setShowMap] = useState(false)
   const [deletingMemoryId, setDeletingMemoryId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null)
 
   const { activeFilter, setActiveFilter, filteredMemories } = useDashboardFilters({
     memories,
@@ -139,6 +142,8 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
   return (
     <main className="relative bg-surface min-h-screen py-24 px-6 md:px-10">
       <div className="max-w-7xl mx-auto">
+        <OnThisDay userEmail={userEmail} />
+
         <BirthdayBanner />
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
@@ -227,7 +232,11 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedMemories.map((memory) => (
-              <article key={memory.id} className="rounded-3xl overflow-hidden bg-surface-container-low shadow-ambient border border-outline-variant/10">
+              <article
+                key={memory.id}
+                onClick={() => setSelectedMemory(memory)}
+                className="rounded-3xl overflow-hidden bg-surface-container-low shadow-ambient border border-outline-variant/10 cursor-pointer"
+              >
                 <div className={`${getCardHeightClass(memory)} bg-surface-container-high relative`}>
                   <img
                     src={memory.imagePath}
@@ -237,7 +246,10 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
 
                   <button
                     type="button"
-                    onClick={() => handleDeleteMemory(memory)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      void handleDeleteMemory(memory)
+                    }}
                     disabled={deletingMemoryId === memory.id}
                     className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold bg-white/90 text-error border border-white hover:bg-white disabled:opacity-60"
                   >
@@ -283,6 +295,26 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onUpload={handleUpload}
+      />
+
+      <MemoryDetail
+        memory={selectedMemory}
+        memories={sortedMemories}
+        onClose={() => setSelectedMemory(null)}
+        onPrev={() => {
+          if (!selectedMemory) return
+          const index = sortedMemories.findIndex((entry) => entry.id === selectedMemory.id)
+          if (index > 0) {
+            setSelectedMemory(sortedMemories[index - 1])
+          }
+        }}
+        onNext={() => {
+          if (!selectedMemory) return
+          const index = sortedMemories.findIndex((entry) => entry.id === selectedMemory.id)
+          if (index >= 0 && index < sortedMemories.length - 1) {
+            setSelectedMemory(sortedMemories[index + 1])
+          }
+        }}
       />
     </main>
   )

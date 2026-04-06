@@ -4,6 +4,9 @@ import { useEffect, useCallback, useState } from 'react'
 import { Memory } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useAuthSession } from '@/hooks/useAuthSession'
+import MemoryReactions from '@/components/MemoryReactions'
+import MemoryComments from '@/components/MemoryComments'
 
 interface MemoryDetailProps {
   memory: Memory | null
@@ -22,6 +25,7 @@ const GRADIENT_FALLBACKS: Record<string, string> = {
 
 export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext }: MemoryDetailProps) {
   const [hasImageError, setHasImageError] = useState(false)
+  const { authUser } = useAuthSession()
 
   const handleKey = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
@@ -173,6 +177,11 @@ export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext
               ))}
             </div>
           )}
+
+          <div className="mt-6 space-y-4">
+            <MemoryReactions memoryId={memory.id} userEmail={authUser?.email ?? null} />
+            <MemoryComments memoryId={memory.id} userEmail={authUser?.email ?? null} />
+          </div>
         </div>
       </div>
     </div>

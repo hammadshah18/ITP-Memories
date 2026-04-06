@@ -20,6 +20,59 @@ function ensureVapidConfigured() {
   vapidConfigured = true
 }
 
+async function sendEmailNotifications(options: {
+  recipients: string[]
+  title: string
+  body: string
+  url: string
+}) {
+  const resendApiKey = process.env.RESEND_API_KEY
+  const fromEmail = process.env.NOTIFICATION_FROM_EMAIL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://itp-memories.vercel.app'
+
+  if (!resendApiKey || !fromEmail || options.recipients.length === 0) {
+    return { attempted: false, sentTo: [] as string[] }
+  }
+
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 16px; color: #111827;">
+      <h2 style="margin: 0 0 12px;">${options.title}</h2>
+      <p style="margin: 0 0 16px; line-height: 1.5;">${options.body}</p>
+      <a href="${appUrl}${options.url}" style="display: inline-block; padding: 10px 14px; border-radius: 999px; background: #486648; color: #ffffff; text-decoration: none; font-weight: 700;">
+        Open ITP Memories
+      </a>
+    </div>
+  `
+
+  const sentTo: string[] = []
+
+  for (const recipient of options.recipients) {
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [recipient],
+          subject: options.title,
+          html: emailHtml,
+        }),
+      })
+
+      if (response.ok) {
+        sentTo.push(recipient)
+      }
+    } catch {
+      // Keep push flow resilient even if email send fails.
+    }
+  }
+
+  return { attempted: true, sentTo }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const accessToken = request.cookies.get(SUPABASE_AUTH_COOKIE)?.value
@@ -81,7 +134,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, count: sentTo.length, sentTo })
+    const emailResult = await sendEmailNotifications({
+      recipients,
+      title,
+      body: messageBody,
+      url,
+    })
+
+    return NextResponse.json({
+      success: true,
+      count: sentTo.length,
+      sentTo,
+      emailAttempted: emailResult.attempted,
+      emailCount: emailResult.sentTo.length,
+      emailSentTo: emailResult.sentTo,
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to send notifications'
     return NextResponse.json({ error: message }, { status: 500 })

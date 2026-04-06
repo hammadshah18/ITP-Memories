@@ -66,9 +66,31 @@ create table if not exists public.push_subscriptions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.memory_reactions (
+  id uuid primary key default gen_random_uuid(),
+  memory_id uuid not null references public.memories(id) on delete cascade,
+  user_email text not null,
+  emoji text not null check (emoji in ('❤️', '😂', '😮', '😢', '🔥')),
+  created_at timestamptz not null default now(),
+  unique(memory_id, user_email)
+);
+
+create table if not exists public.memory_comments (
+  id uuid primary key default gen_random_uuid(),
+  memory_id uuid not null references public.memories(id) on delete cascade,
+  user_email text not null,
+  content text not null,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_push_subscriptions_user_email on public.push_subscriptions (user_email);
+create index if not exists idx_memory_reactions_memory_id on public.memory_reactions (memory_id);
+create index if not exists idx_memory_comments_memory_id on public.memory_comments (memory_id);
+create index if not exists idx_memory_comments_created_at on public.memory_comments (created_at desc);
 
 alter table public.push_subscriptions enable row level security;
+alter table public.memory_reactions enable row level security;
+alter table public.memory_comments enable row level security;
 
 do $$
 begin
@@ -115,6 +137,132 @@ begin
       for delete
       to authenticated
       using (auth.uid() is not null);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_reactions' and policyname = 'memory_reactions_select_all'
+  ) then
+    create policy "memory_reactions_select_all"
+      on public.memory_reactions
+      for select
+      to anon, authenticated
+      using (true);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_reactions' and policyname = 'memory_reactions_insert_allowed_emails'
+  ) then
+    create policy "memory_reactions_insert_allowed_emails"
+      on public.memory_reactions
+      for insert
+      to anon, authenticated
+      with check (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_reactions' and policyname = 'memory_reactions_update_allowed_emails'
+  ) then
+    create policy "memory_reactions_update_allowed_emails"
+      on public.memory_reactions
+      for update
+      to anon, authenticated
+      using (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      )
+      with check (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_reactions' and policyname = 'memory_reactions_delete_allowed_emails'
+  ) then
+    create policy "memory_reactions_delete_allowed_emails"
+      on public.memory_reactions
+      for delete
+      to anon, authenticated
+      using (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      );
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_comments' and policyname = 'memory_comments_select_all'
+  ) then
+    create policy "memory_comments_select_all"
+      on public.memory_comments
+      for select
+      to anon, authenticated
+      using (true);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_comments' and policyname = 'memory_comments_insert_allowed_emails'
+  ) then
+    create policy "memory_comments_insert_allowed_emails"
+      on public.memory_comments
+      for insert
+      to anon, authenticated
+      with check (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      );
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'memory_comments' and policyname = 'memory_comments_delete_allowed_emails'
+  ) then
+    create policy "memory_comments_delete_allowed_emails"
+      on public.memory_comments
+      for delete
+      to anon, authenticated
+      using (
+        lower(user_email) in (
+          'hammadshah7218@gmail.com',
+          'razakhanzada100@gmail.com',
+          'aitzazhakro123@gmail.com',
+          'hammadmasood179@gmail.com'
+        )
+      );
   end if;
 end $$;
 
