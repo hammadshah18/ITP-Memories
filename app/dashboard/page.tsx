@@ -54,7 +54,7 @@ export default async function DashboardPage() {
   if (extended.error?.message?.toLowerCase().includes('column')) {
     const fallback = await supabase
       .from('memories')
-      .select('id, title, description, date, location, image_url, uploaded_by, tags, is_private, created_at, series')
+      .select('*')
       .order('date', { ascending: false })
 
     data = fallback.data
