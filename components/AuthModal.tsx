@@ -101,6 +101,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalP
           {isSubmitting ? 'Please wait...' : mode === 'login' ? 'Login' : 'Sign up'}
         </button>
 
+        {mode === 'signup' && (
+          <p className="mt-3 text-[11px] text-on-surface-variant/70 text-center">
+            Signup is limited to approved emails only.
+          </p>
+        )}
+
         <button
           onClick={() => {
             setError(null)
