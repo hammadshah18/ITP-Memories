@@ -1,10 +1,15 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Memory } from '@/types'
 import UploadModal from '@/components/UploadModal'
+import BirthdayBanner from '@/components/BirthdayBanner'
+import PhotobookExport from '@/components/PhotobookExport'
+import { subscribePush } from '@/lib/subscribePush'
+import { ALLOWED_EMAILS } from '@/lib/access'
+import { FRIENDS_BIRTHDAYS, getDaysUntilBirthday } from '@/lib/birthdays'
 import { DashboardFilter, useDashboardFilters } from '@/hooks/useDashboardFilters'
 
 interface DashboardClientProps {
@@ -49,6 +54,52 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
     [filteredMemories]
   )
 
+  useEffect(() => {
+    if (!userEmail) return
+    void subscribePush({ userEmail })
+  }, [userEmail])
+
+  useEffect(() => {
+    if (!userEmail) return
+
+    const todayBirthday = FRIENDS_BIRTHDAYS.find((friend) => getDaysUntilBirthday(friend) === 0)
+    const upcomingBirthday = FRIENDS_BIRTHDAYS
+      .map((friend) => ({ ...friend, days: getDaysUntilBirthday(friend) }))
+      .filter((friend) => friend.days > 0 && friend.days <= 7)
+      .sort((a, b) => a.days - b.days)[0]
+
+    if (!todayBirthday && !upcomingBirthday) return
+
+    const dateKey = new Date().toISOString().slice(0, 10)
+    const notifyKey = `itp-birthday-push-${dateKey}`
+    if (typeof window !== 'undefined' && localStorage.getItem(notifyKey) === '1') {
+      return
+    }
+
+    const title = todayBirthday
+      ? `Happy Birthday ${todayBirthday.name}! 🎂`
+      : 'Birthday Reminder 🎁'
+
+    const body = todayBirthday
+      ? `${todayBirthday.name} has a birthday today. Celebrate in ITP Memories!`
+      : `${upcomingBirthday?.name}'s birthday is in ${upcomingBirthday?.days} day${upcomingBirthday?.days === 1 ? '' : 's'}.`
+
+    void fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        body,
+        url: '/dashboard',
+        recipients: ALLOWED_EMAILS,
+      }),
+    }).finally(() => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(notifyKey, '1')
+      }
+    })
+  }, [userEmail])
+
   const handleUpload = (newMemory: Memory) => {
     setMemories((prev) => [newMemory, ...prev])
   }
@@ -88,6 +139,8 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
   return (
     <main className="relative bg-surface min-h-screen py-24 px-6 md:px-10">
       <div className="max-w-7xl mx-auto">
+        <BirthdayBanner />
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
             <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-bold mb-2">Private Dashboard</p>
@@ -95,7 +148,20 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
             <p className="text-on-surface-variant/70 text-sm mt-2">Signed in as {userEmail ?? 'Unknown user'}</p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <PhotobookExport memories={sortedMemories} buttonLabel="Download as Photobook 📖" />
+            <button
+              onClick={() => router.push('/dashboard/albums')}
+              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+            >
+              Albums
+            </button>
+            <button
+              onClick={() => router.push('/dashboard/stats')}
+              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
+            >
+              Stats
+            </button>
             <button
               onClick={() => router.push('/')}
               className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"

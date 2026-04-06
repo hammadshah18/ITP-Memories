@@ -59,7 +59,64 @@ begin
   end if;
 end $$;
 
-alter table storage.objects enable row level security;
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_email text not null unique,
+  subscription jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_push_subscriptions_user_email on public.push_subscriptions (user_email);
+
+alter table public.push_subscriptions enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'push_subscriptions' and policyname = 'push_subscriptions_select_authenticated'
+  ) then
+    create policy "push_subscriptions_select_authenticated"
+      on public.push_subscriptions
+      for select
+      to authenticated
+      using (auth.uid() is not null);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'push_subscriptions' and policyname = 'push_subscriptions_insert_authenticated'
+  ) then
+    create policy "push_subscriptions_insert_authenticated"
+      on public.push_subscriptions
+      for insert
+      to authenticated
+      with check (auth.uid() is not null);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'push_subscriptions' and policyname = 'push_subscriptions_update_authenticated'
+  ) then
+    create policy "push_subscriptions_update_authenticated"
+      on public.push_subscriptions
+      for update
+      to authenticated
+      using (auth.uid() is not null)
+      with check (auth.uid() is not null);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'push_subscriptions' and policyname = 'push_subscriptions_delete_authenticated'
+  ) then
+    create policy "push_subscriptions_delete_authenticated"
+      on public.push_subscriptions
+      for delete
+      to authenticated
+      using (auth.uid() is not null);
+  end if;
+end $$;
 
 -- Storage bucket policies for "memories" bucket (authenticated users)
 do $$

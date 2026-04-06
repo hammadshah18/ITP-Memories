@@ -163,6 +163,17 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
       if (!res.ok) throw new Error(data.error || 'Upload failed')
 
       onUpload(data.memory)
+
+      void fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'New Memory Added! 📸',
+          body: data?.memory?.title || form.title,
+          url: '/dashboard',
+        }),
+      })
+
       setForm(DEFAULT_FORM)
       setPreview(null)
       setFile(null)

@@ -18,6 +18,7 @@ import Footer from '@/components/Footer'
 import MemoryDetail from '@/components/MemoryDetail'
 import Particles from '@/components/Particles'
 import ThisDay from '@/components/ThisDay'
+import BirthdayBanner from '@/components/BirthdayBanner'
 
 export default function Home() {
   const router = useRouter()
@@ -107,6 +108,10 @@ export default function Home() {
         <Hero memories={memories} onExplore={() => {
           document.getElementById('memories')?.scrollIntoView({ behavior: 'smooth' })
         }} />
+
+        <section className="pt-6 px-8 max-w-6xl mx-auto">
+          <BirthdayBanner />
+        </section>
 
         <ThisDay memories={memories} onMemoryClick={handleMemoryClick} />
 
