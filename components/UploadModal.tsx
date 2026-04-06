@@ -284,7 +284,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
           {/* Friend selector */}
           <div className="mt-5 w-full">
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-bold mb-2">Uploading as</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {FRIENDS.map(friend => (
                 <button
                   key={friend}
@@ -305,7 +305,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
 
           <div className="mt-5 w-full">
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-bold mb-2">Aspect Ratio</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {ASPECT_OPTIONS.map((ratio) => (
                 <button
                   key={ratio}
@@ -326,7 +326,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
 
           <div className="mt-5 w-full">
             <p className="text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-bold mb-2">Display Style</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {DISPLAY_TYPES.map((display) => (
                 <button
                   key={display}
@@ -462,7 +462,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
               <label className="block text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-2">
                 Tag Friends
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {FRIENDS.map((friend) => (
                   <button
                     key={friend}
@@ -510,7 +510,7 @@ export default function UploadModal({ isOpen, onClose, onUpload }: UploadModalPr
                 }))}
               />
 
-              <div className="grid grid-cols-2 gap-4 mt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
                 <input
                   type="number"
                   placeholder="Latitude"

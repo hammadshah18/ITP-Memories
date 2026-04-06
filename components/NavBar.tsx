@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import MusicToggle from './MusicToggle'
 
 interface NavBarProps {
   onAddMemory: () => void
@@ -80,7 +79,6 @@ export default function NavBar({
 
       {/* Right Actions */}
       <div className="flex items-center gap-4 border-l border-outline-variant/20 pl-6">
-        <MusicToggle />
         {isAuthenticated ? (
           <>
             <button

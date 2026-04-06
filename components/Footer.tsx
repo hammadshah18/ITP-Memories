@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
     <footer className="bg-surface-container-low/60 border-t border-outline-variant/10 py-16">
-      <div className="max-w-6xl mx-auto px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <h4 className="font-headline text-2xl italic text-primary mb-3">Ethereal Archive</h4>

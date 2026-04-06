@@ -1,10 +1,24 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import DevServiceWorkerCleanup from '@/components/DevServiceWorkerCleanup'
 
 export const metadata: Metadata = {
   title: 'Memory Timeline | Our Journey Since August 15, 2023',
   description: 'A curated vessel for sentiment. Memories, moments, and the quiet beauty of a friendship that blooms with every passing season.',
   keywords: ['memories', 'friends', 'archive', 'journey'],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ITP Memories',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#e94560',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
@@ -15,6 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#e94560" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="ITP Memories" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="shortcut icon" href="/icons/icon-192x192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -27,6 +48,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface antialiased">
+        <DevServiceWorkerCleanup />
         {children}
       </body>
     </html>

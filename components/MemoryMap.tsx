@@ -42,7 +42,7 @@ export default function MemoryMap({ memories }: MemoryMapProps) {
   const points = memories.filter((memory) => typeof memory.latitude === 'number' && typeof memory.longitude === 'number')
 
   return (
-    <div className="w-full h-[420px] rounded-3xl overflow-hidden border border-outline-variant/20 shadow-ambient">
+    <div className="w-full h-[320px] md:h-[420px] rounded-3xl overflow-hidden border border-outline-variant/20 shadow-ambient">
       <MapContainer center={[24.8607, 67.0011]} zoom={5} className="w-full h-full" scrollWheelZoom>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

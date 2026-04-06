@@ -159,7 +159,7 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
             No uploaded memories yet.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedMemories.map((memory) => (
               <article key={memory.id} className="rounded-3xl overflow-hidden bg-surface-container-low shadow-ambient border border-outline-variant/10">
                 <div className={`${getCardHeightClass(memory)} bg-surface-container-high relative`}>

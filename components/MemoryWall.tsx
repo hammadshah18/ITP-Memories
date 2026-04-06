@@ -78,7 +78,7 @@ export default function MemoryWall({ memories, onMemoryClick }: MemoryWallProps)
       </div>
 
       {/* ─── Masonry Wall Header ─── */}
-      <div className="max-w-7xl mx-auto px-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex items-end justify-between mb-12 reveal-up">
           <div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-primary/60 font-bold mb-3">All Memories</p>
@@ -95,7 +95,7 @@ export default function MemoryWall({ memories, onMemoryClick }: MemoryWallProps)
         </div>
 
         {/* Masonry Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-5 reveal-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 reveal-up">
           {cols.map((col, ci) => (
             <div key={ci} className="flex flex-col gap-5">
               {col.map((memory, mi) => {

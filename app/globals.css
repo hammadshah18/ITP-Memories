@@ -20,11 +20,21 @@ html {
   scroll-behavior: smooth;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Manrope', sans-serif;
   background-color: #f8faf8;
   color: #191c1b;
   overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ─── Custom Scrollbar ─── */
@@ -176,8 +186,9 @@ body {
 /* ─── Orbit System ─── */
 .orbit-container {
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: min(320px, 90vw);
+  aspect-ratio: 1 / 1;
+  height: auto;
 }
 
 .orbit-ring {

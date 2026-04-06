@@ -36,7 +36,7 @@ export default function FriendsSection({ memories }: FriendsSectionProps) {
 
   return (
     <section id="friends" ref={sectionRef} className="py-32 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="text-center mb-20 reveal-up">
           <p className="text-[10px] uppercase tracking-[0.35em] text-primary/60 font-bold mb-4">
@@ -50,7 +50,7 @@ export default function FriendsSection({ memories }: FriendsSectionProps) {
         </div>
 
         {/* Friend cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {FRIENDS.map((friend, i) => {
             const count = countByFriend(friend.name)
             const isEven = i % 2 === 0
@@ -99,7 +99,7 @@ export default function FriendsSection({ memories }: FriendsSectionProps) {
                 </div>
 
                 {/* Quote */}
-                <p className="font-body text-xs text-on-surface-variant/70 leading-relaxed italic max-w-[180px]">
+                <p className="font-body text-xs text-on-surface-variant/70 leading-relaxed italic max-w-xs w-full">
                   &ldquo;{friend.quote}&rdquo;
                 </p>
               </div>
