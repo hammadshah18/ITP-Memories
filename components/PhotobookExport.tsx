@@ -168,10 +168,9 @@ export default function PhotobookExport({ memories, buttonLabel = 'Download as P
 
         document.body.appendChild(pageRoot)
         const canvas = await html2canvas(pageRoot, {
-          scale: 2,
           useCORS: true,
           backgroundColor: '#f8faf8',
-        })
+        } as any)
         document.body.removeChild(pageRoot)
 
         const image = canvas.toDataURL('image/jpeg', 0.92)
