@@ -60,7 +60,7 @@ export default function Home() {
   const handleLogout = useCallback(async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     setAuthUser(null)
-  }, [])
+  }, [setAuthUser])
 
   const handleMemoryClick = useCallback((memory: Memory) => {
     setSelectedMemory(memory)
