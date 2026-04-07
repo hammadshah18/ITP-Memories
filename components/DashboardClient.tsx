@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Memory } from '@/types'
 import UploadModal from '@/components/UploadModal'
 import BirthdayBanner from '@/components/BirthdayBanner'
@@ -23,22 +23,31 @@ interface DashboardClientProps {
 const MemoryMap = dynamic(() => import('@/components/MemoryMap'), { ssr: false })
 
 const FILTER_OPTIONS: Array<{ key: DashboardFilter; label: string }> = [
-  { key: 'all', label: 'All Memories' },
-  { key: 'mine', label: 'My Memories' },
-  { key: 'public', label: 'Public Memories' },
-  { key: 'private', label: 'Private Memories' },
+  { key: 'all', label: 'All' },
+  { key: 'mine', label: 'Mine' },
+  { key: 'public', label: 'Public' },
+  { key: 'private', label: 'Private' },
 ]
 
-function getCardHeightClass(memory: Memory) {
-  const display = memory.displayType || 'Portrait'
-  if (display === 'Landscape') return 'h-48'
-  if (display === 'Story') return 'h-72'
-  if (display === 'Square') return 'h-56'
-  return 'h-64'
+const STORIES = [
+  'Hammad Shah',
+  'Aitzaz Hassan',
+  'Hammad Masood',
+  'Raza Khan',
+]
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }
 
 export default function DashboardClient({ initialMemories, userEmail, currentFriendName }: DashboardClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [memories, setMemories] = useState<Memory[]>(initialMemories)
   const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [showMap, setShowMap] = useState(false)
@@ -63,6 +72,12 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
   }, [userEmail])
 
   useEffect(() => {
+    if (searchParams.get('add') === '1') {
+      setIsUploadOpen(true)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
     if (!userEmail) return
 
     const todayBirthday = FRIENDS_BIRTHDAYS.find((friend) => getDaysUntilBirthday(friend) === 0)
@@ -79,9 +94,7 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
       return
     }
 
-    const title = todayBirthday
-      ? `Happy Birthday ${todayBirthday.name}! 🎂`
-      : 'Birthday Reminder 🎁'
+    const title = todayBirthday ? `Happy Birthday ${todayBirthday.name}! 🎂` : 'Birthday Reminder 🎁'
 
     const body = todayBirthday
       ? `${todayBirthday.name} has a birthday today. Celebrate in ITP Memories!`
@@ -113,7 +126,7 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
   }
 
   const handleDeleteMemory = async (memory: Memory) => {
-    const shouldDelete = window.confirm(`Delete \"${memory.title}\"? This action cannot be undone.`)
+    const shouldDelete = window.confirm(`Delete "${memory.title}"? This action cannot be undone.`)
     if (!shouldDelete) return
 
     setActionError(null)
@@ -139,63 +152,70 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
     }
   }
 
+  const closeUpload = () => {
+    setIsUploadOpen(false)
+    if (searchParams.get('add') === '1') {
+      router.replace('/dashboard')
+    }
+  }
+
   return (
-    <main className="relative bg-surface min-h-screen py-24 px-6 md:px-10">
-      <div className="max-w-7xl mx-auto">
-        <OnThisDay userEmail={userEmail} />
+    <main className="space-y-3 py-3">
+      <BirthdayBanner />
 
-        <BirthdayBanner />
+      <OnThisDay userEmail={userEmail} />
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-bold mb-2">Private Dashboard</p>
-            <h1 className="font-headline italic text-5xl text-on-surface">Uploaded Memories</h1>
-            <p className="text-on-surface-variant/70 text-sm mt-2">Signed in as {userEmail ?? 'Unknown user'}</p>
-          </div>
+      <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Signed in</p>
+        <p className="mt-0.5 text-sm text-on-surface truncate">{userEmail ?? 'Unknown user'}</p>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <PhotobookExport memories={sortedMemories} buttonLabel="Download as Photobook 📖" />
-            <button
-              onClick={() => router.push('/dashboard/albums')}
-              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
-            >
-              Albums
-            </button>
-            <button
-              onClick={() => router.push('/dashboard/stats')}
-              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
-            >
-              Stats
-            </button>
-            <button
-              onClick={() => router.push('/')}
-              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
-            >
-              Public Home
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant font-label text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
-            >
-              Logout
-            </button>
-            <button
-              onClick={() => setIsUploadOpen(true)}
-              className="bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-3 rounded-full font-label text-xs font-bold uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-105"
-            >
-              Add New Image
-            </button>
-          </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <PhotobookExport memories={sortedMemories} buttonLabel="Photobook" />
+          <button
+            onClick={() => router.push('/dashboard/albums')}
+            className="h-9 rounded-full px-4 border border-outline-variant/30 text-xs text-on-surface-variant transition-colors duration-150 hover:text-primary"
+          >
+            Albums
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/stats')}
+            className="h-9 rounded-full px-4 border border-outline-variant/30 text-xs text-on-surface-variant transition-colors duration-150 hover:text-primary"
+          >
+            Stats
+          </button>
+          <button
+            onClick={handleLogout}
+            className="h-9 rounded-full px-4 border border-outline-variant/30 text-xs text-on-surface-variant transition-colors duration-150 hover:text-primary"
+          >
+            Logout
+          </button>
         </div>
+      </section>
 
-        <div className="flex flex-wrap items-center gap-2 mb-6">
+      <section className="space-y-2">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Stories</p>
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {STORIES.map((name) => (
+            <div key={name} className="w-[72px] shrink-0 text-center">
+              <div className="mx-auto h-12 w-12 rounded-full bg-primary-fixed text-primary text-xs font-semibold flex items-center justify-center">
+                {getInitials(name)}
+              </div>
+              <p className="mt-1 text-[11px] text-on-surface-variant line-clamp-2">{name}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
           {FILTER_OPTIONS.map((option) => (
             <button
               key={option.key}
               onClick={() => setActiveFilter(option.key)}
-              className={`px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${activeFilter === option.key
-                ? 'bg-primary text-on-primary shadow-md'
-                : 'bg-surface-container border border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary'
+              className={`h-8 rounded-full px-3 text-[11px] transition-colors duration-150 ${
+                activeFilter === option.key
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container border border-outline-variant/30 text-on-surface-variant'
               }`}
             >
               {option.label}
@@ -204,9 +224,10 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
 
           <button
             onClick={() => setShowMap((value) => !value)}
-            className={`px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${showMap
-              ? 'bg-primary-fixed text-primary'
-              : 'bg-surface-container border border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary'
+            className={`h-8 rounded-full px-3 text-[11px] transition-colors duration-150 ${
+              showMap
+                ? 'bg-primary-fixed text-primary'
+                : 'bg-surface-container border border-outline-variant/30 text-on-surface-variant'
             }`}
           >
             {showMap ? 'Hide Map' : 'Show Map'}
@@ -214,30 +235,31 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
         </div>
 
         {showMap && (
-          <div className="mb-8">
+          <div className="rounded-2xl border border-outline-variant/20 overflow-hidden">
             <MemoryMap memories={sortedMemories} />
           </div>
         )}
+      </section>
 
-        {actionError && (
-          <p className="mb-6 text-xs text-error bg-error-container/30 px-4 py-2 rounded-xl inline-block">
-            {actionError}
-          </p>
-        )}
+      {actionError && (
+        <p className="rounded-xl bg-error-container/40 px-3 py-2 text-xs text-error">{actionError}</p>
+      )}
 
-        {sortedMemories.length === 0 ? (
-          <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-low/60 p-10 text-center text-on-surface-variant">
-            No uploaded memories yet.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sortedMemories.length === 0 ? (
+        <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">
+          No uploaded memories yet.
+        </div>
+      ) : (
+        <section className="space-y-2">
+          <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Memory Feed</p>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {sortedMemories.map((memory) => (
               <article
                 key={memory.id}
                 onClick={() => setSelectedMemory(memory)}
-                className="rounded-3xl overflow-hidden bg-surface-container-low shadow-ambient border border-outline-variant/10 cursor-pointer"
+                className="rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-container-low cursor-pointer"
               >
-                <div className={`${getCardHeightClass(memory)} bg-surface-container-high relative`}>
+                <div className="aspect-[16/9] bg-surface-container-high relative">
                   <img
                     src={memory.imagePath}
                     alt={memory.title}
@@ -251,49 +273,28 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
                       void handleDeleteMemory(memory)
                     }}
                     disabled={deletingMemoryId === memory.id}
-                    className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold bg-white/90 text-error border border-white hover:bg-white disabled:opacity-60"
+                    className="absolute top-2 right-2 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] text-error"
                   >
-                    {deletingMemoryId === memory.id ? 'Deleting...' : 'Delete'}
+                    {deletingMemoryId === memory.id ? 'Deleting' : 'Delete'}
                   </button>
-
-                  {memory.taggedFriends && memory.taggedFriends.length > 0 && (
-                    <div className="absolute top-3 left-3 flex -space-x-2">
-                      {memory.taggedFriends.slice(0, 4).map((friend) => (
-                        <div
-                          key={`${memory.id}-${friend}`}
-                          className="w-7 h-7 rounded-full bg-white/90 text-primary border border-white text-[9px] font-bold flex items-center justify-center"
-                          title={friend}
-                        >
-                          {friend.split(' ').map((part) => part[0]).join('').slice(0, 2)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-                <div className="p-5">
-                  <h2 className="font-headline italic text-2xl text-on-surface mb-2">{memory.title}</h2>
-                  <p className="text-sm text-on-surface-variant/80 leading-relaxed mb-4 line-clamp-3">{memory.description}</p>
-                  <div className="space-y-1 text-xs text-on-surface-variant/80">
-                    <p><span className="font-bold text-on-surface">Date:</span> {memory.date}</p>
-                    <p><span className="font-bold text-on-surface">Location:</span> {memory.location}</p>
-                    <p><span className="font-bold text-on-surface">Uploaded by:</span> {memory.uploadedBy}</p>
-                    <p><span className="font-bold text-on-surface">Visibility:</span> {memory.isPrivate ? 'Private' : 'Public'}</p>
-                    {(memory.latitude || memory.longitude) && (
-                      <p>
-                        <span className="font-bold text-on-surface">Coordinates:</span> {memory.latitude ?? 'N/A'}, {memory.longitude ?? 'N/A'}
-                      </p>
-                    )}
-                  </div>
+
+                <div className="p-3">
+                  <h2 className="text-[14px] font-medium text-on-surface line-clamp-1">{memory.title}</h2>
+                  <p className="mt-1 text-[12px] text-on-surface-variant line-clamp-1">
+                    {memory.date} • {memory.location}
+                  </p>
+                  <p className="mt-2 text-[12px] text-on-surface-variant/80 line-clamp-2">{memory.description}</p>
                 </div>
               </article>
             ))}
           </div>
-        )}
-      </div>
+        </section>
+      )}
 
       <UploadModal
         isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
+        onClose={closeUpload}
         onUpload={handleUpload}
       />
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import DevServiceWorkerCleanup from '@/components/DevServiceWorkerCleanup'
+import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: 'Memory Timeline | Our Journey Since August 15, 2023',
@@ -49,7 +50,7 @@ export default function RootLayout({
       </head>
       <body className="bg-surface text-on-surface antialiased">
         <DevServiceWorkerCleanup />
-        {children}
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   )

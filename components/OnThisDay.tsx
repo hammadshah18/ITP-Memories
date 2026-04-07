@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { createSupabaseBrowserClient } from '@/lib/supabase'
 
 interface OnThisDayMemory {
@@ -71,41 +70,36 @@ export default function OnThisDay({ userEmail }: OnThisDayProps) {
   })
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="mb-8 rounded-3xl border border-amber-300/40 bg-gradient-to-br from-amber-50 via-surface to-amber-100/50 p-6"
-    >
-      <div className="mb-4">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-amber-700/80 font-bold mb-2">On This Day 🗓️</p>
-        <h2 className="font-headline italic text-3xl text-on-surface">{todayLabel}</h2>
+    <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+      <div className="mb-2">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">On This Day</p>
+        <h2 className="text-sm text-on-surface">{todayLabel}</h2>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {memories.map((memory) => (
           <article
             key={memory.id}
-            className="min-w-[240px] max-w-[240px] rounded-2xl border border-amber-300/50 bg-white/70 backdrop-blur-sm overflow-hidden shadow-sm"
+            className="min-w-[170px] max-w-[170px] rounded-xl border border-outline-variant/20 bg-surface overflow-hidden"
           >
-            <div className="h-36 bg-amber-100/40">
+            <div className="h-24 bg-surface-container-high">
               {memory.image_url ? (
                 <img src={memory.image_url} alt={memory.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-amber-700/60 text-sm font-semibold">
+                <div className="w-full h-full flex items-center justify-center text-on-surface-variant/60 text-xs font-semibold">
                   Memory
                 </div>
               )}
             </div>
-            <div className="p-4">
-              <h3 className="font-headline italic text-xl text-on-surface line-clamp-1">{memory.title}</h3>
-              <p className="text-xs uppercase tracking-widest text-amber-700/80 font-bold mt-2">
+            <div className="p-2.5">
+              <h3 className="text-[13px] font-medium text-on-surface line-clamp-1">{memory.title}</h3>
+              <p className="text-[11px] text-on-surface-variant mt-1">
                 {getYearsAgoLabel(memory.date)}
               </p>
             </div>
           </article>
         ))}
       </div>
-    </motion.section>
+    </section>
   )
 }

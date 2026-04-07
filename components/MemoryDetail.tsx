@@ -3,7 +3,6 @@
 import { useEffect, useCallback, useState } from 'react'
 import { Memory } from '@/types'
 import { formatDate } from '@/lib/utils'
-import { motion } from 'framer-motion'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import MemoryReactions from '@/components/MemoryReactions'
 import MemoryComments from '@/components/MemoryComments'
@@ -51,41 +50,41 @@ export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext
 
   return (
     <div
-      className="fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] bg-black/35 flex items-end justify-center p-0"
       onClick={onClose}
     >
       <div
-        className="bg-surface-container-lowest/90 glass w-full max-w-2xl rounded-[2rem] shadow-[0_40px_80px_rgba(25,28,27,0.15)] overflow-hidden relative max-h-[90vh] overflow-y-auto"
+        className="bg-surface-container-lowest w-full max-w-md rounded-t-3xl border border-outline-variant/20 overflow-hidden relative max-h-[90vh] overflow-y-auto lg:max-w-lg"
         onClick={e => e.stopPropagation()}
       >
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-outline-variant/10">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 text-on-surface-variant/60 hover:text-primary transition-colors text-xs uppercase tracking-widest font-bold"
+            className="flex items-center gap-2 text-on-surface-variant/60 hover:text-primary transition-colors duration-150 text-xs uppercase tracking-widest font-bold"
           >
             <span className="material-symbols-outlined text-lg">arrow_back</span>
             Close
           </button>
           <div className="flex items-center gap-3">
-            <button className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors group">
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">favorite</span>
+            <button className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors duration-150 group">
+              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors duration-150">favorite</span>
             </button>
-            <button className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors group">
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">share</span>
+            <button className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors duration-150 group">
+              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors duration-150">share</span>
             </button>
             <div className="w-px h-5 bg-outline-variant/30" />
             <button
               onClick={onPrev}
               disabled={currentIndex <= 0}
-              className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-30"
+              className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors duration-150 disabled:opacity-30"
             >
               <span className="material-symbols-outlined text-on-surface-variant text-lg">chevron_left</span>
             </button>
             <button
               onClick={onNext}
               disabled={currentIndex >= memories.length - 1}
-              className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors disabled:opacity-30"
+              className="w-9 h-9 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors duration-150 disabled:opacity-30"
             >
               <span className="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
             </button>
@@ -98,13 +97,10 @@ export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext
           style={{ background: GRADIENT_FALLBACKS[memory.uploadedBy] }}
         >
           {!hasImageError && memory.imagePath ? (
-            <motion.img
+            <img
               src={memory.imagePath}
               alt={memory.title}
               className="absolute inset-0 w-full h-full object-cover"
-              initial={{ scale: 1.06, opacity: 0.85 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
               onError={() => setHasImageError(true)}
             />
           ) : null}
@@ -120,7 +116,7 @@ export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext
         </div>
 
         {/* Content */}
-        <div className="p-8">
+        <div className="p-4">
           {/* Tags */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             {memory.series && (
@@ -133,18 +129,18 @@ export default function MemoryDetail({ memory, memories, onClose, onPrev, onNext
             </span>
           </div>
 
-          <h2 className="font-headline text-4xl italic text-on-surface leading-tight mb-3">
+          <h2 className="text-[18px] font-semibold text-on-surface leading-tight mb-3">
             {memory.title}
           </h2>
 
           {/* Action button */}
-          <button className="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-label text-xs font-bold uppercase tracking-[0.15em] py-4 rounded-full mb-6 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-primary/20">
+          <button className="w-full h-10 bg-primary text-on-primary text-xs font-bold uppercase tracking-widest rounded-full mb-4 flex items-center justify-center gap-2 transition-opacity duration-150 hover:opacity-90">
             <span className="material-symbols-outlined text-lg">print</span>
             Order Physical Print
           </button>
 
           {/* Description */}
-          <p className="font-body text-on-surface-variant leading-relaxed text-sm mb-6">
+          <p className="font-body text-on-surface-variant leading-relaxed text-sm mb-4">
             {memory.description}
           </p>
 

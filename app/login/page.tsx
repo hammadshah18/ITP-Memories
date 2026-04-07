@@ -41,9 +41,11 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-surface flex items-center justify-center px-6">
-      <div className="w-full max-w-md rounded-3xl bg-surface-container-lowest/90 glass shadow-[0_40px_80px_rgba(25,28,27,0.16)] p-8">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-bold mb-4">Private Access</p>
-        <h1 className="font-headline italic text-4xl text-primary mb-6">Admin Login</h1>
+      <div className="w-full max-w-sm rounded-3xl border border-outline-variant/20 bg-surface-container-low p-6">
+        <div className="mb-5 text-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center justify-center">ITP</div>
+          <h1 className="mt-3 text-[18px] font-semibold text-on-surface">ITP Memories</h1>
+        </div>
 
         <div className="space-y-4">
           <input
@@ -51,14 +53,14 @@ export default function LoginPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full h-12 rounded-xl px-4 bg-surface-container border border-outline-variant/20 focus:border-primary outline-none"
+            className="w-full h-10 rounded-xl px-3 bg-surface border border-outline-variant/20 focus:border-primary outline-none text-sm"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-12 rounded-xl px-4 bg-surface-container border border-outline-variant/20 focus:border-primary outline-none"
+            className="w-full h-10 rounded-xl px-3 bg-surface border border-outline-variant/20 focus:border-primary outline-none text-sm"
           />
         </div>
 
@@ -67,7 +69,7 @@ export default function LoginPage() {
         <button
           onClick={handleLogin}
           disabled={isSubmitting}
-          className="mt-6 w-full h-12 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+          className="mt-5 w-full h-10 rounded-full bg-primary text-on-primary text-xs font-bold uppercase tracking-widest disabled:opacity-50"
         >
           {isSubmitting ? 'Please wait...' : 'Login'}
         </button>

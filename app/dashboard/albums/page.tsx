@@ -65,42 +65,38 @@ export default async function AlbumsPage() {
   const currentFriendName = getFriendNameByEmail(userData.user.email)
 
   return (
-    <main className="bg-surface min-h-screen py-20 px-6 md:px-10">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-bold mb-2">Dashboard</p>
-            <h1 className="font-headline italic text-5xl text-on-surface">Albums</h1>
-            <p className="text-sm text-on-surface-variant/70 mt-2">
-              Signed in as {userData.user.email ?? currentFriendName ?? 'Unknown user'}
-            </p>
-          </div>
+    <main className="space-y-3 py-3">
+      <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Albums</p>
+        <p className="text-sm text-on-surface mt-0.5">
+          {userData.user.email ?? currentFriendName ?? 'Unknown user'}
+        </p>
 
-          <div className="flex flex-wrap gap-3">
-            <PhotobookExport memories={memories} buttonLabel="Download Entire Album 📖" />
-            <Link
-              href="/dashboard"
-              className="px-5 py-3 rounded-full border border-outline-variant/30 text-on-surface-variant text-[10px] font-bold uppercase tracking-widest hover:border-primary hover:text-primary transition-colors"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <PhotobookExport memories={memories} buttonLabel="Photobook" />
+          <Link
+            href="/dashboard"
+            className="h-9 rounded-full px-4 border border-outline-variant/30 text-[12px] text-on-surface-variant flex items-center"
+          >
+            Back
+          </Link>
         </div>
+      </section>
 
-        <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-low p-6">
-          <p className="text-xs uppercase tracking-widest text-on-surface-variant/80 font-bold mb-4">Album Memories ({memories.length})</p>
+      <section className="space-y-2">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Album Memories ({memories.length})</p>
           {memories.length === 0 ? (
             <p className="text-sm text-on-surface-variant">No memories available yet.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {memories.map((memory) => (
-                <article key={memory.id} className="rounded-2xl border border-outline-variant/15 bg-surface overflow-hidden">
-                  <div className="h-44 bg-surface-container-high">
+                <article key={memory.id} className="rounded-xl border border-outline-variant/20 bg-surface overflow-hidden">
+                  <div className="aspect-[16/9] bg-surface-container-high">
                     <img src={memory.imagePath} alt={memory.title} className="w-full h-full object-cover" />
                   </div>
-                  <div className="p-4">
-                    <h2 className="font-headline italic text-2xl text-on-surface line-clamp-1">{memory.title}</h2>
-                    <p className="text-xs text-on-surface-variant/70 mt-1">
+                  <div className="p-3">
+                    <h2 className="text-[14px] font-medium text-on-surface line-clamp-1">{memory.title}</h2>
+                    <p className="text-[12px] text-on-surface-variant mt-1">
                       {new Date(memory.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
@@ -108,8 +104,7 @@ export default async function AlbumsPage() {
               ))}
             </div>
           )}
-        </section>
-      </div>
+      </section>
     </main>
   )
 }
