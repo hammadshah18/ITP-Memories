@@ -99,39 +99,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'title and body are required' }, { status: 400 })
     }
 
-    ensureVapidConfigured()
-
-    const supabase = createSupabaseServerClient(accessToken)
-    const { data, error } = await supabase
-      .from('push_subscriptions')
-      .select('id, user_email, subscription')
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    const records = Array.isArray(data) ? data : []
-    const targets = records.filter((entry) => {
-      const email = normalizeEmail(String(entry.user_email ?? ''))
-      return recipients.includes(email)
-    })
-
-    const payload = JSON.stringify({ title, body: messageBody, url })
     const sentTo: string[] = []
+    let pushAttempted = false
+    let pushWarning: string | null = null
 
-    for (const entry of targets) {
-      try {
-        await webpush.sendNotification(entry.subscription as PushSubscription, payload)
-        sentTo.push(String(entry.user_email ?? ''))
-      } catch (sendError: unknown) {
-        const statusCode = typeof sendError === 'object' && sendError && 'statusCode' in sendError
-          ? Number((sendError as { statusCode?: number }).statusCode)
-          : 0
+    try {
+      ensureVapidConfigured()
+      pushAttempted = true
 
-        if (statusCode === 404 || statusCode === 410) {
-          await supabase.from('push_subscriptions').delete().eq('id', entry.id)
+      const supabase = createSupabaseServerClient(accessToken)
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('id, user_email, subscription')
+
+      if (!error) {
+        const records = Array.isArray(data) ? data : []
+        const targets = records.filter((entry) => {
+          const email = normalizeEmail(String(entry.user_email ?? ''))
+          return recipients.includes(email)
+        })
+
+        const payload = JSON.stringify({ title, body: messageBody, url })
+
+        for (const entry of targets) {
+          try {
+            await webpush.sendNotification(entry.subscription as PushSubscription, payload)
+            sentTo.push(String(entry.user_email ?? ''))
+          } catch (sendError: unknown) {
+            const statusCode = typeof sendError === 'object' && sendError && 'statusCode' in sendError
+              ? Number((sendError as { statusCode?: number }).statusCode)
+              : 0
+
+            if (statusCode === 404 || statusCode === 410) {
+              await supabase.from('push_subscriptions').delete().eq('id', entry.id)
+            }
+          }
         }
+      } else {
+        pushWarning = error.message
       }
+    } catch (pushError) {
+      pushWarning = pushError instanceof Error ? pushError.message : 'Push notification setup failed'
     }
 
     const emailResult = await sendEmailNotifications({
@@ -143,6 +151,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      pushAttempted,
+      pushWarning,
       count: sentTo.length,
       sentTo,
       emailAttempted: emailResult.attempted,
