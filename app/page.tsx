@@ -6,6 +6,29 @@ import { useAuthSession } from '@/hooks/useAuthSession'
 import BirthdayBanner from '@/components/BirthdayBanner'
 import Hero from '@/components/Hero'
 
+const TEAM_MEMBERS = [
+  {
+    name: 'Hammad Shah',
+    image: '/images/hammadshah.jpeg',
+    caption: 'Memories curator and timeline keeper.',
+  },
+  {
+    name: 'Raza Khan',
+    image: '/images/Raza khan.jpeg',
+    caption: 'Captures moments that define our friendship.',
+  },
+  {
+    name: 'Aitzaz Hassan',
+    image: '/images/Aitzaz hassan.jpeg',
+    caption: 'Keeps every chapter meaningful and connected.',
+  },
+  {
+    name: 'Hammad Masood',
+    image: '/images/hammad masood.jpeg',
+    caption: 'Builds and preserves the shared archive.',
+  },
+]
+
 export default function Home() {
   const router = useRouter()
   const memories = useMemo(() => [], [])
@@ -16,6 +39,34 @@ export default function Home() {
       <Hero memories={memories} onExplore={() => router.push(authUser ? '/dashboard' : '/login')} />
 
       <BirthdayBanner />
+
+      <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">About ITP Memories</p>
+        <h2 className="mt-1 text-[18px] font-semibold text-on-surface">A private memory archive for our circle</h2>
+        <p className="mt-2 text-sm text-on-surface-variant">
+          This app is a secure journal of moments shared by our team. Public visitors can view the intro,
+          while personal memories stay protected behind admin access.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Our Team</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {TEAM_MEMBERS.map((member) => (
+            <article key={member.name} className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+              <div className="aspect-square w-full overflow-hidden rounded-xl bg-surface-container-high">
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <p className="mt-2 text-[14px] font-medium text-on-surface">{member.name}</p>
+              <p className="text-[12px] text-on-surface-variant">{member.caption}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
         <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Private Access</p>

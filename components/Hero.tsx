@@ -22,10 +22,14 @@ export default function Hero({ memories }: HeroProps) {
     <section id="hero" className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
       <div className="h-[56px] flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="h-8 w-8 rounded-full bg-primary text-on-primary text-[11px] font-semibold flex items-center justify-center">ITP</div>
+          <img
+            src="/icons/icon-192x192.png"
+            alt="ITP Memories"
+            className="h-8 w-8 rounded-lg object-cover"
+          />
           <div>
             <p className="text-sm text-on-surface font-medium">ITP Memories</p>
-            <p className="text-[11px] text-on-surface-variant">{memories.length} memories</p>
+            <p className="text-[11px] text-on-surface-variant">Private archive • {memories.length} public items</p>
           </div>
         </div>
 
