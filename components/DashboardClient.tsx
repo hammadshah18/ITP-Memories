@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Memory } from '@/types'
 import UploadModal from './UploadModal'
@@ -45,7 +45,7 @@ function getInitials(name: string) {
     .toUpperCase()
 }
 
-export default function DashboardClient({ initialMemories, userEmail, currentFriendName }: DashboardClientProps) {
+function DashboardClientContent({ initialMemories, userEmail, currentFriendName }: DashboardClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [memories, setMemories] = useState<Memory[]>(initialMemories)
@@ -331,5 +331,13 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
         }}
       />
     </main>
+  )
+}
+
+export default function DashboardClient(props: DashboardClientProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardClientContent {...props} />
+    </Suspense>
   )
 }

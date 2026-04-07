@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { BookOpen, Clock3, Home, PlusCircle, User } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -11,7 +12,7 @@ const ITEMS = [
   { label: 'Profile', href: '/dashboard/profile', icon: User },
 ]
 
-export default function BottomNav() {
+function BottomNavContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -72,5 +73,13 @@ export default function BottomNav() {
         })}
       </div>
     </nav>
+  )
+}
+
+export default function BottomNav() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BottomNavContent />
+    </Suspense>
   )
 }
