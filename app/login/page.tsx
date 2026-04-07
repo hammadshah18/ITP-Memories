@@ -43,7 +43,11 @@ export default function LoginPage() {
     <main className="min-h-screen bg-surface flex items-center justify-center px-6">
       <div className="w-full max-w-sm rounded-3xl border border-outline-variant/20 bg-surface-container-low p-6">
         <div className="mb-5 text-center">
-          <div className="mx-auto h-12 w-12 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center justify-center">ITP</div>
+          <img
+            src="/icons/icon-192x192.png"
+            alt="ITP Memories"
+            className="mx-auto h-12 w-12 rounded-xl object-cover"
+          />
           <h1 className="mt-3 text-[18px] font-semibold text-on-surface">ITP Memories</h1>
         </div>
 

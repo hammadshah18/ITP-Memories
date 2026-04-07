@@ -22,7 +22,11 @@ export default function AppHeader({ title, userEmail, showBrand = false }: AppHe
         <div className="flex items-center gap-2 min-w-0">
           {showBrand ? (
             <>
-              <div className="h-8 w-8 rounded-full bg-primary text-on-primary text-[11px] font-bold flex items-center justify-center">ITP</div>
+              <img
+                src="/icons/icon-192x192.png"
+                alt="ITP Memories"
+                className="h-8 w-8 rounded-lg object-cover"
+              />
               <p className="text-[18px] font-semibold text-on-surface truncate">ITP Memories</p>
             </>
           ) : (

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Memory } from '@/types'
-import UploadModal from '@/components/UploadModal'
+import UploadModal from './UploadModal'
 import BirthdayBanner from '@/components/BirthdayBanner'
 import PhotobookExport from '@/components/PhotobookExport'
 import MemoryDetail from '@/components/MemoryDetail'
@@ -29,11 +29,11 @@ const FILTER_OPTIONS: Array<{ key: DashboardFilter; label: string }> = [
   { key: 'private', label: 'Private' },
 ]
 
-const STORIES = [
-  'Hammad Shah',
-  'Aitzaz Hassan',
-  'Hammad Masood',
-  'Raza Khan',
+const STORIES: Array<{ name: string; image: string }> = [
+  { name: 'Hammad Shah', image: '/images/hammadshah.jpeg' },
+  { name: 'Aitzaz Hassan', image: '/images/Aitzaz hassan.jpeg' },
+  { name: 'Hammad Masood', image: '/images/hammad masood.jpeg' },
+  { name: 'Raza Khan', image: '/images/Raza khan.jpeg' },
 ]
 
 function getInitials(name: string) {
@@ -195,12 +195,25 @@ export default function DashboardClient({ initialMemories, userEmail, currentFri
       <section className="space-y-2">
         <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Stories</p>
         <div className="flex gap-3 overflow-x-auto pb-1">
-          {STORIES.map((name) => (
-            <div key={name} className="w-[72px] shrink-0 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-primary-fixed text-primary text-xs font-semibold flex items-center justify-center">
-                {getInitials(name)}
+          {STORIES.map((story) => (
+            <div key={story.name} className="w-[72px] shrink-0 text-center">
+              <div className="mx-auto h-12 w-12 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container">
+                <img
+                  src={story.image}
+                  alt={story.name}
+                  className="h-full w-full object-cover"
+                  onError={(event) => {
+                    const target = event.currentTarget
+                    target.style.display = 'none'
+                    const fallback = target.nextElementSibling as HTMLSpanElement | null
+                    if (fallback) fallback.style.display = 'flex'
+                  }}
+                />
+                <span className="h-full w-full hidden items-center justify-center text-xs font-semibold text-primary">
+                  {getInitials(story.name)}
+                </span>
               </div>
-              <p className="mt-1 text-[11px] text-on-surface-variant line-clamp-2">{name}</p>
+              <p className="mt-1 text-[11px] text-on-surface-variant line-clamp-2">{story.name}</p>
             </div>
           ))}
         </div>
