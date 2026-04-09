@@ -91,9 +91,7 @@ export async function POST(request: NextRequest) {
     const title = typeof body?.title === 'string' ? body.title : ''
     const messageBody = typeof body?.body === 'string' ? body.body : ''
     const url = typeof body?.url === 'string' ? body.url : '/dashboard'
-    const recipients = Array.isArray(body?.recipients)
-      ? body.recipients.map((entry: unknown) => String(entry)).map(normalizeEmail)
-      : ALLOWED_EMAILS.map((email) => normalizeEmail(email))
+    const recipients = ALLOWED_EMAILS.map((email) => normalizeEmail(email))
 
     if (!title || !messageBody) {
       return NextResponse.json({ error: 'title and body are required' }, { status: 400 })

@@ -5,11 +5,7 @@ export const ALLOWED_EMAILS = [
   'hammadmasood179@gmail.com',
 ] as const
 
-export const SIGNUP_ALLOWED_EMAILS = [
-  'razakhanzada100@gmail.com',
-  'aitzazhakro123@gmail.com',
-  'hammadmasood179@gmail.com',
-] as const
+export const ADMIN_LOGIN_PASSWORD = process.env.ADMIN_LOGIN_PASSWORD ?? '12345678'
 
 const EMAIL_TO_FRIEND_NAME: Record<string, string> = {
   'hammadshah7218@gmail.com': 'Hammad Shah',
@@ -27,9 +23,9 @@ export function isEmailAllowed(email: string | null | undefined) {
   return ALLOWED_EMAILS.includes(normalizeEmail(email) as (typeof ALLOWED_EMAILS)[number])
 }
 
-export function isEmailSignupAllowed(email: string | null | undefined) {
-  if (!email) return false
-  return SIGNUP_ALLOWED_EMAILS.includes(normalizeEmail(email) as (typeof SIGNUP_ALLOWED_EMAILS)[number])
+export function isValidAdminPassword(password: string | null | undefined) {
+  if (!password) return false
+  return password === ADMIN_LOGIN_PASSWORD
 }
 
 export function getFriendNameByEmail(email: string | null | undefined) {

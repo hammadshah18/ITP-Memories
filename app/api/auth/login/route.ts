@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient, SUPABASE_AUTH_COOKIE } from '@/lib/supabase'
-import { isEmailAllowed, normalizeEmail } from '@/lib/access'
+import { isEmailAllowed, isValidAdminPassword, normalizeEmail } from '@/lib/access'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,24 +20,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
 
+    if (!isEmailAllowed(email)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
+    if (!isValidAdminPassword(password)) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    }
+
     const supabase = createSupabaseServerClient()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error || !data.session || !data.user) {
+      const signUp = await supabase.auth.signUp({ email, password })
+      const isAlreadyRegistered = /already registered|already exists/i.test(signUp.error?.message ?? '')
+
+      if (signUp.error && !isAlreadyRegistered) {
+        return NextResponse.json({ error: signUp.error.message }, { status: 401 })
+      }
+
+      const signInRetry = await supabase.auth.signInWithPassword({ email, password })
+      data = signInRetry.data
+      error = signInRetry.error
+    }
 
     if (error || !data.session || !data.user) {
       console.log(error)
       return NextResponse.json({ error: error?.message ?? 'Invalid credentials' }, { status: 401 })
-    }
-
-    if (!isEmailAllowed(data.user.email)) {
-      const deniedResponse = NextResponse.json({ error: 'Access denied' }, { status: 403 })
-      deniedResponse.cookies.set(SUPABASE_AUTH_COOKIE, '', {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 0,
-      })
-      return deniedResponse
     }
 
     const response = NextResponse.json({
