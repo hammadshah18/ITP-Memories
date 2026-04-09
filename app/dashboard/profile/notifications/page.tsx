@@ -2,9 +2,9 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient, SUPABASE_AUTH_COOKIE } from '@/lib/supabase'
 import { isEmailAllowed } from '@/lib/access'
-import ProfileMenuClient from '@/components/ProfileMenuClient'
+import ProfileNotificationsClient from '@/components/ProfileNotificationsClient'
 
-export default async function ProfilePage() {
+export default async function ProfileNotificationsPage() {
   const accessToken = cookies().get(SUPABASE_AUTH_COOKIE)?.value
   if (!accessToken) {
     redirect('/login')
@@ -17,7 +17,5 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  const email = userData.user.email ?? 'unknown@itp.local'
-
-  return <ProfileMenuClient email={email} />
+  return <ProfileNotificationsClient />
 }

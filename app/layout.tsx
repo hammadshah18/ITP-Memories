@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import DevServiceWorkerCleanup from '@/components/DevServiceWorkerCleanup'
+import OfflineBanner from '@/components/OfflineBanner'
 import AppShell from '@/components/AppShell'
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface antialiased">
+        <OfflineBanner />
         <DevServiceWorkerCleanup />
         <AppShell>{children}</AppShell>
       </body>

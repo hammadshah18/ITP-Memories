@@ -34,19 +34,6 @@ img {
   height: auto;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f2f4f2;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #aecfab;
-  border-radius: 9999px;
-}
-
 .input-minimal {
   height: 40px;
   width: 100%;

@@ -78,7 +78,7 @@ function BottomNavContent() {
 
 export default function BottomNav() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <BottomNavContent />
     </Suspense>
   )

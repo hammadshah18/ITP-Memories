@@ -20,6 +20,9 @@ interface DashboardClientProps {
   currentFriendName: string | null
 }
 
+const CACHED_MEMORIES_KEY = 'cached_memories'
+const CACHED_MEMORIES_TIME_KEY = 'cached_memories_time'
+
 const MemoryMap = dynamic(() => import('@/components/MemoryMap'), { ssr: false })
 
 const FILTER_OPTIONS: Array<{ key: DashboardFilter; label: string }> = [
@@ -49,6 +52,7 @@ function DashboardClientContent({ initialMemories, userEmail, currentFriendName 
   const router = useRouter()
   const searchParams = useSearchParams()
   const [memories, setMemories] = useState<Memory[]>(initialMemories)
+  const [isUsingCachedData, setIsUsingCachedData] = useState(false)
   const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [showMap, setShowMap] = useState(false)
   const [deletingMemoryId, setDeletingMemoryId] = useState<string | null>(null)
@@ -70,6 +74,78 @@ function DashboardClientContent({ initialMemories, userEmail, currentFriendName 
     if (!userEmail) return
     void subscribePush({ userEmail })
   }, [userEmail])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(CACHED_MEMORIES_KEY, JSON.stringify(memories))
+    localStorage.setItem(CACHED_MEMORIES_TIME_KEY, Date.now().toString())
+  }, [memories])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    let mounted = true
+
+    const applyCachedMemories = () => {
+      const cached = localStorage.getItem(CACHED_MEMORIES_KEY)
+      if (!cached) return false
+
+      try {
+        const parsed = JSON.parse(cached)
+        if (!Array.isArray(parsed)) return false
+        if (!mounted) return true
+
+        setMemories(parsed as Memory[])
+        setIsUsingCachedData(true)
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    const syncMemories = async () => {
+      if (!navigator.onLine) {
+        applyCachedMemories()
+        return
+      }
+
+      try {
+        const res = await fetch('/api/memories', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        })
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch memories')
+        }
+
+        const data = await res.json()
+        if (!mounted) return
+
+        const liveMemories = Array.isArray(data?.memories)
+          ? (data.memories as Memory[])
+          : []
+
+        setMemories(liveMemories)
+        setIsUsingCachedData(false)
+      } catch {
+        applyCachedMemories()
+      }
+    }
+
+    void syncMemories()
+
+    const handleOnline = () => {
+      void syncMemories()
+    }
+
+    window.addEventListener('online', handleOnline)
+
+    return () => {
+      mounted = false
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [])
 
   useEffect(() => {
     if (searchParams.get('add') === '1') {
@@ -164,6 +240,12 @@ function DashboardClientContent({ initialMemories, userEmail, currentFriendName 
       <BirthdayBanner />
 
       <OnThisDay userEmail={userEmail} />
+
+      {isUsingCachedData ? (
+        <p className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+          Showing cached data
+        </p>
+      ) : null}
 
       <section className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
         <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Signed in</p>
@@ -336,7 +418,7 @@ function DashboardClientContent({ initialMemories, userEmail, currentFriendName 
 
 export default function DashboardClient(props: DashboardClientProps) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <DashboardClientContent {...props} />
     </Suspense>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 interface AuthUser {
   id: string
@@ -8,6 +9,7 @@ interface AuthUser {
 }
 
 export function useAuthSession() {
+  const pathname = usePathname()
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
 
@@ -16,15 +18,32 @@ export function useAuthSession() {
 
     const loadSession = async () => {
       try {
-        const res = await fetch('/api/auth/session')
-        if (!res.ok) return
+        const res = await fetch('/api/auth/session', {
+          cache: 'no-store',
+          credentials: 'same-origin',
+        })
+
+        if (!res.ok) {
+          if (mounted) {
+            setAuthUser(null)
+          }
+          return
+        }
 
         const data = await res.json()
-        if (mounted && data?.user?.id) {
+        if (!mounted) return
+
+        if (data?.user?.id) {
           setAuthUser({ id: data.user.id, email: data.user.email ?? null })
+          return
         }
+
+        setAuthUser(null)
       } catch {
         // Keep unauthenticated state on error.
+        if (mounted) {
+          setAuthUser(null)
+        }
       } finally {
         if (mounted) setIsLoadingSession(false)
       }
@@ -35,7 +54,7 @@ export function useAuthSession() {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [pathname])
 
   return {
     authUser,

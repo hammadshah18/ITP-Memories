@@ -5,29 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthSession } from '@/hooks/useAuthSession'
 import BirthdayBanner from '@/components/BirthdayBanner'
 import Hero from '@/components/Hero'
-
-const TEAM_MEMBERS = [
-  {
-    name: 'Hammad Shah',
-    image: '/images/hammadshah.jpeg',
-    caption: 'Memories curator and timeline keeper.',
-  },
-  {
-    name: 'Raza Khan',
-    image: '/images/Raza khan.jpeg',
-    caption: 'Captures moments that define our friendship.',
-  },
-  {
-    name: 'Aitzaz Hassan',
-    image: '/images/Aitzaz hassan.jpeg',
-    caption: 'Keeps every chapter meaningful and connected.',
-  },
-  {
-    name: 'Hammad Masood',
-    image: '/images/hammad masood.jpeg',
-    caption: 'Builds and preserves the shared archive.',
-  },
-]
+import { GROUP_MEMBERS } from '@/lib/appContent'
 
 export default function Home() {
   const router = useRouter()
@@ -52,17 +30,20 @@ export default function Home() {
       <section className="space-y-2">
         <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Our Team</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {TEAM_MEMBERS.map((member) => (
-            <article key={member.name} className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
+          {GROUP_MEMBERS.map((member) => (
+            <article key={member.name} className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3 shadow-sm">
               <div className="aspect-square w-full overflow-hidden rounded-xl bg-surface-container-high">
                 <img
-                  src={member.image}
+                  src={member.avatar}
                   alt={member.name}
                   className="h-full w-full object-cover"
                 />
               </div>
-              <p className="mt-2 text-[14px] font-medium text-on-surface">{member.name}</p>
-              <p className="text-[12px] text-on-surface-variant">{member.caption}</p>
+              <div className="mt-2 flex items-start justify-between gap-2">
+                <p className="text-[14px] font-medium text-on-surface">{member.name}</p>
+                <span className="rounded-full bg-primary-fixed px-2 py-0.5 text-[10px] font-semibold text-primary">{member.role}</span>
+              </div>
+              <p className="mt-1 text-[12px] text-on-surface-variant">{member.bio}</p>
             </article>
           ))}
         </div>
