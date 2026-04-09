@@ -7,7 +7,7 @@ export interface FriendBirthday {
 
 export const FRIENDS_BIRTHDAYS: FriendBirthday[] = [
   { name: 'Hammad Shah', day: 7, month: 11, year: 2005 },
-  { name: 'Aitzaz Hassan', day: 11, month: 5, year: 2005 },
+  { name: 'Aitzaz Hassan', day: 12, month: 5, year: 2005 },
   { name: 'Hammad Masood', day: 26, month: 9, year: 2005 },
   { name: 'Raza Khan', day: 14, month: 3, year: 2005 },
 ]
